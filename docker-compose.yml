@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+    nginx:
+        image: nginx:latest
+        volumes:
+            - ./:/var/www
+            - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+        ports:
+            - "8876:80"
+        depends_on:
+            - app
+        container_name: laracreative_nginx
+
+    app:
+        build:
+            context: .
+            dockerfile: _docker/app/Dockerfile
+        user: "1000:1000"
+        volumes:
+            - ./:/var/www
+        container_name: laracreative_app
+#        environment:
+#            - DATABASE_USERNAME=${DATABASE_USERNAME:-postgres}
+#            - DATABASE_PASSWORD=${DATABASE_PASSWORD:-password}
+#            - DATABASE_NAME=${DATABASE_NAME:-postgres}
+#            - DATABASE_HOST=${DATABASE_HOST:-db}
+        depends_on:
+            - db
+
+#    db:
+#        image: mysql:8.0
+#        volumes:
+#            - ./tmp/db:/var/lib/mysql
+#        environment:
+#            MYSQL_DATABASE: lardocker
+#            MYSQL_ROOT_PASSWORD: root
+#        ports:
+#            - 8101:3306
+#        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
+#        container_name: project_db
+
+#    DB_HOST=db
+#    DB_CONNECTION=pgsql
+#    DB_PORT=5432
+#    DB_USERNAME=postgres
+#    DB_DATABASE=
+#    DB_PASSWORD=password
+#    DATABASE_NAME=postgres
+
+    db:
+        image: postgres:16
+        environment:
+            - POSTGRES_USER=${DATABASE_USERNAME:-postgres}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
+            - POSTGRES_DB=${DATABASE_NAME:-postgres}
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./postgres-data:/var/lib/postgresql/data
+        container_name: laracreative_db
